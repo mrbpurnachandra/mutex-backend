@@ -1,21 +1,24 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const errorHandler = require('../middlewares/errorHandler')
-const { PrismaClient } = require('@prisma/client')
 const asyncWrapper = require('../lib/asyncWrapper')
+const userRouter = require('../routes/user')
 
 const app = express()
-const prisma = new PrismaClient()
+const prisma = require('./db')
 
 app.use(bodyParser.json())
 
+// TODO - Testing Route
 app.get(
     '/',
     asyncWrapper(async (req, res, next) => {
-        const userCount = await prisma.user.count()
-        res.json({ userCount })
+        const userCount1 = await prisma.user.count()
+        res.json({ userCount: userCount1 })
     })
 )
+
+app.use('/user', userRouter)
 
 app.use(errorHandler)
 
