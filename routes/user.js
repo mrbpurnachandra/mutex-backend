@@ -3,10 +3,26 @@ const asyncWrapper = require('../lib/asyncWrapper')
 const prisma = require('../app/db')
 const userSchema = require('../schemas/user')
 const { hash } = require('../lib/crypto')
+const auth = require('../middlewares/auth')
 const router = express.Router()
 
+// TODO
+router.get(
+    '/',
+    auth, 
+    asyncWrapper(async (req, res, next) => {
+        const users = await prisma.user.findMany({
+            include: {
+                teacher: true,
+                student: true,
+            },
+        })
+        res.json(users)
+    })
+)
+
 router.post(
-    '/register',
+    '/',
     asyncWrapper(async (req, res, next) => {
         const { error, value: userData } = userSchema.validate(req.body)
         if (error) throw { message: error.message, status: 400 }
@@ -24,7 +40,11 @@ router.post(
             },
         })
 
-        if (user) throw { message: 'username or password already exists', status: 400 }
+        if (user)
+            throw {
+                message: 'username or email already exists',
+                status: 400,
+            }
 
         const password = await hash(userData.password)
         const newUser = await prisma.user.create({
