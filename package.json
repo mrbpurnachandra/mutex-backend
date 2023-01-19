@@ -1,0 +1,26 @@
+{
+    "name": "mutex-backend",
+    "version": "1.0.0",
+    "description": "Backend for Mutex",
+    "private": true,
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/purnachandra057/mutex-backend.git"
+    },
+    "author": "@purnachandra057",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/purnachandra057/mutex-backend/issues"
+    },
+    "homepage": "https://github.com/purnachandra057/mutex-backend#readme",
+    "dependencies": {
+        "body-parser": "^1.20.1",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "nodemon": "^2.0.20"
+    }
+}
