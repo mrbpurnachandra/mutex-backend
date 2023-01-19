@@ -6,6 +6,9 @@ const userRouter = require('../routes/user')
 
 const app = express()
 const prisma = require('./db')
+const authRouter = require('../routes/auth')
+const teacherRouter = require('../routes/teacher')
+const studentRouter = require('../routes/student')
 
 app.use(bodyParser.json())
 
@@ -18,7 +21,10 @@ app.get(
     })
 )
 
+app.use('/auth', authRouter)
 app.use('/user', userRouter)
+app.use('/teacher', teacherRouter)
+app.use('/student', studentRouter)
 
 app.use(errorHandler)
 

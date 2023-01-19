@@ -11,9 +11,36 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   name     String
-  email    String @unique
-  username String @unique
+  email    String   @unique
+  username String   @unique
   password String
+  teacher  Teacher?
+  student  Student?
+}
+
+model Teacher {
+  id          Int    @id @default(autoincrement())
+  userId      Int    @unique
+  description String @db.Text
+  user        User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Student {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  user   User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  crOf   Class? @relation(name: "cr")
+  vcrOf  Class? @relation(name: "vcr")
+}
+
+model Class {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String   @db.Text
+  crId        Int      @unique
+  vcrId       Int?     @unique
+  cr          Student  @relation(name: "cr", fields: [crId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  vcr         Student? @relation(name: "vcr", fields: [vcrId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 }
