@@ -48,7 +48,7 @@ router.post(
 // Cr can add new vcr
 // Removing vcr is equivalent to setting vcr to cr himself
 router.post(
-    '/:id/vcr',
+    '/vcr',
     cr,
     asyncWrapper(async (req, res, next) => {
         const { error, value: vcrData } = vcrSchema.validate(req.body)
@@ -56,16 +56,7 @@ router.post(
 
         const vcrId = vcrData.vcrId
         const student = req.student
-        const classId = Number(req.params.id)
-
-        const _class = await prisma.class.findFirst({
-            where: {
-                crId: student.id,
-                id: classId,
-            },
-        })
-
-        if (!_class) throw { message: 'no such class', status: 404 }
+        const classId = student.crOf.id
 
         const vcr = await prisma.enroll.findFirst({
             where: {
