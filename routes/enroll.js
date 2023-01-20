@@ -133,6 +133,7 @@ router.delete(
                 id: enrollId,
             },
         })
+        // TODO - when student is deleted, all chats associated with student should be deleted
 
         res.json(deletedEnroll)
     })

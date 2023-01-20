@@ -47,6 +47,32 @@ router.post(
     })
 )
 
+// Cr can remove lectures from class
+router.delete(
+    '/:id',
+    asyncWrapper(async (req, res, next) => {
+        const student = req.student
+        const classId = student.crOf.id
+        const lectureId = Number(req.params.id)
 
+        const lecture = await prisma.lecture.findFirst({
+            where: {
+                id: lectureId,
+                classId,
+            },
+        })
+
+        if (!lecture) throw { message: 'no such lecture', status: 404 }
+
+        const deletedLecture = await prisma.lecture.delete({
+            where: {
+                id: lectureId,
+            },
+        })
+        // TODO - when lecture is deleted, all chats of associated teacher should be deleted
+
+        res.json(deletedLecture)
+    })
+)
 
 module.exports = router
