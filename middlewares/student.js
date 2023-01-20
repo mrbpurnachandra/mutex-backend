@@ -10,6 +10,7 @@ async function student(req, res, next) {
         include: {
             crOf: true,
             vcrOf: true,
+            enroll: true,
         },
     })
     if (!student) throw { message: 'unauthorized', status: 401 }

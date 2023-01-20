@@ -10,6 +10,7 @@ const authRouter = require('../routes/auth')
 const teacherRouter = require('../routes/teacher')
 const studentRouter = require('../routes/student')
 const classRouter = require('../routes/class')
+const enrollRouter = require('../routes/enroll')
 
 app.use(bodyParser.json())
 
@@ -27,6 +28,7 @@ app.use('/user', userRouter)
 app.use('/class', classRouter)
 app.use('/teacher', teacherRouter)
 app.use('/student', studentRouter)
+app.use('/enroll', enrollRouter)
 
 app.use(errorHandler)
 

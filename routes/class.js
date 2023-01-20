@@ -14,12 +14,28 @@ router.post(
         const user = req.user
         const student = req.student
 
+        if (student.enroll)
+            throw { message: 'student can enroll in only one class' }
+
         const { error, value: classData } = classSchema.validate(req.body)
         if (error) throw { message: error.message, status: 400 }
 
-        // TODO - if student is enrolled in one class he/she cannot be in other class
-        const newClass = await prisma.class.create({
-            data: { ...classData, crId: student.id },
+        const newClass = await prisma.$transaction(async (tx) => {
+            // Create a class
+            const newClass = await prisma.class.create({
+                data: { ...classData, crId: student.id },
+            })
+
+            // Add enrollment
+            await prisma.enroll.create({
+                data: {
+                    status: 'approved',
+                    approvedAt: new Date(),
+                    studentId: student.id,
+                    classId: newClass.id,
+                },
+            })
+            return newClass
         })
 
         res.status(201)
