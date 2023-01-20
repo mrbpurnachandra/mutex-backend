@@ -12,6 +12,7 @@ const studentRouter = require('../routes/student')
 const classRouter = require('../routes/class')
 const enrollRouter = require('../routes/enroll')
 const lectureRouter = require('../routes/lecture')
+const announcementRouter = require('../routes/announcement')
 
 app.use(bodyParser.json())
 
@@ -31,6 +32,7 @@ app.use('/teacher', teacherRouter)
 app.use('/student', studentRouter)
 app.use('/enroll', enrollRouter)
 app.use('/lecture', lectureRouter)
+app.use('/announcement', announcementRouter)
 
 app.use(errorHandler)
 

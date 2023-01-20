@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String
-  email    String   @unique
-  username String   @unique
-  password String
-  teacher  Teacher?
-  student  Student?
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  username      String         @unique
+  password      String
+  teacher       Teacher?
+  student       Student?
+  announcements Announcement[]
 }
 
 model Teacher {
@@ -38,15 +39,16 @@ model Student {
 }
 
 model Class {
-  id          Int       @id @default(autoincrement())
-  name        String
-  description String    @db.Text
-  crId        Int       @unique
-  vcrId       Int?      @unique
-  cr          Student   @relation(name: "cr", fields: [crId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  vcr         Student?  @relation(name: "vcr", fields: [vcrId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  enrolls     Enroll[]
-  lectures    Lecture[]
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String         @db.Text
+  crId          Int            @unique
+  vcrId         Int?           @unique
+  cr            Student        @relation(name: "cr", fields: [crId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  vcr           Student?       @relation(name: "vcr", fields: [vcrId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  enrolls       Enroll[]
+  lectures      Lecture[]
+  announcements Announcement[]
 }
 
 model Enroll {
@@ -66,4 +68,14 @@ model Lecture {
   teacherId Int
   class     Class   @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Announcement {
+  id        Int      @id @default(autoincrement())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  userId    Int
+  classId   Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }

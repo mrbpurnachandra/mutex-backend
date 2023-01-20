@@ -64,12 +64,27 @@ router.delete(
 
         if (!lecture) throw { message: 'no such lecture', status: 404 }
 
-        const deletedLecture = await prisma.lecture.delete({
-            where: {
-                id: lectureId,
-            },
+        const deletedLecture = await prisma.$transaction(async (tx) => {
+            // Delete the Teacher
+            const deletedLecture = await tx.lecture.delete({
+                where: {
+                    id: lectureId,
+                },
+                include: {
+                    teacher: true,
+                },
+            })
+
+            // Delete associated announcements
+            await tx.announcement.deleteMany({
+                where: {
+                    userId: deletedLecture.teacher.userId,
+                    classId,
+                },
+            })
+
+            return deletedLecture
         })
-        // TODO - when lecture is deleted, all chats of associated teacher should be deleted
 
         res.json(deletedLecture)
     })

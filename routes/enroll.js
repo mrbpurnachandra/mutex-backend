@@ -128,12 +128,29 @@ router.delete(
         if (enroll.studentId == student.id)
             throw { message: "cannot delete cr's enrollment", status: 400 }
 
-        const deletedEnroll = await prisma.enroll.delete({
-            where: {
-                id: enrollId,
-            },
+        const deletedEnroll = await prisma.$transaction(async (tx) => {
+            // Delete the enroll
+            const deletedEnroll = await tx.enroll.delete({
+                where: {
+                    id: enrollId,
+                },
+                include: {
+                    student: true,
+                },
+            })
+
+            // Delete the announcements
+            await tx.announcement.deleteMany({
+                where: {
+                    classId: deletedEnroll.classId,
+                    userId: deletedEnroll.student.userId,
+                },
+            })
+
+            // TODO - delete message
+
+            return deletedEnroll
         })
-        // TODO - when student is deleted, all chats associated with student should be deleted
 
         res.json(deletedEnroll)
     })

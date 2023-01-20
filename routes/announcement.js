@@ -1,0 +1,51 @@
+const express = require('express')
+const prisma = require('../app/db')
+const asyncWrapper = require('../lib/asyncWrapper')
+const announcer = require('../middlewares/announcer')
+const auth = require('../middlewares/auth')
+const announcementSchema = require('../schemas/announcement')
+const router = express.Router()
+
+router.use(auth)
+
+router.post(
+    '/',
+    announcer,
+    asyncWrapper(async (req, res, next) => {
+        const user = req.user
+
+        const { error, value: announcementData } = announcementSchema.validate(
+            req.body
+        )
+        if (error) throw { message: error.message, status: 400 }
+
+        const classId = announcementData.classId
+        if (!isClassValid(req, classId))
+            throw { message: 'unauthorized - test', status: 401 }
+
+        const announcement = await prisma.announcement.create({
+            data: {
+                ...announcementData,
+                userId: user.id,
+            },
+        })
+
+        res.status(201)
+        res.json(announcement)
+    })
+)
+
+function isClassValid(req, classId) {
+    if (req.teacher) {
+        return req.teacher.lectures.some(
+            (lecture) => lecture.classId === classId
+        )
+    }
+    if (req.student) {
+        return req.student.crOf.id === classId || req.student.vcrOf.id === classId
+    }
+
+    return false
+}
+
+module.exports = router
