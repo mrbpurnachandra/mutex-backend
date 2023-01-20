@@ -80,6 +80,33 @@ router.post(
     })
 )
 
+// Normal student can also cancel his enrollment request
+router.post(
+    '/:id/cancel',
+    asyncWrapper(async (req, res, next) => {
+        const student = req.student
+        const enrollId = Number(req.params.id)
+
+        const enroll = await prisma.enroll.findFirst({
+            where: {
+                id: enrollId,
+                studentId: student.id,
+                approvedAt: null,
+            },
+        })
+
+        if (!enroll) throw { message: 'no such enroll', status: 400 }
+
+        const deletedEnroll = await prisma.enroll.delete({
+            where: {
+                id: enrollId,
+            },
+        })
+
+        res.json(deletedEnroll)
+    })
+)
+
 // Cr can delete enrollment (either approved or not)
 router.delete(
     '/:id',
@@ -100,7 +127,7 @@ router.delete(
         // Cannot delete enrollment of CR
         if (enroll.studentId == student.id)
             throw { message: "cannot delete cr's enrollment", status: 400 }
-            
+
         const deletedEnroll = await prisma.enroll.delete({
             where: {
                 id: enrollId,
