@@ -21,10 +21,11 @@ model User {
 }
 
 model Teacher {
-  id          Int    @id @default(autoincrement())
-  userId      Int    @unique
-  description String @db.Text
-  user        User   @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
+  description String    @db.Text
+  user        User      @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  lectures    Lecture[]
 }
 
 model Student {
@@ -37,14 +38,15 @@ model Student {
 }
 
 model Class {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
-  description String   @db.Text
-  crId        Int      @unique
-  vcrId       Int?     @unique
-  cr          Student  @relation(name: "cr", fields: [crId], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  vcr         Student? @relation(name: "vcr", fields: [vcrId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  description String    @db.Text
+  crId        Int       @unique
+  vcrId       Int?      @unique
+  cr          Student   @relation(name: "cr", fields: [crId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  vcr         Student?  @relation(name: "vcr", fields: [vcrId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   enrolls     Enroll[]
+  lectures    Lecture[]
 }
 
 model Enroll {
@@ -55,4 +57,13 @@ model Enroll {
   studentId  Int       @unique
   class      Class     @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   student    Student   @relation(fields: [studentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Lecture {
+  id        Int     @id @default(autoincrement())
+  subject   String
+  classId   Int
+  teacherId Int
+  class     Class   @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
