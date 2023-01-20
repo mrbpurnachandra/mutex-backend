@@ -2,8 +2,10 @@ const express = require('express')
 const prisma = require('../app/db')
 const asyncWrapper = require('../lib/asyncWrapper')
 const auth = require('../middlewares/auth')
+const cr = require('../middlewares/cr')
 const student = require('../middlewares/student')
 const classSchema = require('../schemas/class')
+const vcrSchema = require('../schemas/vcr')
 const router = express.Router()
 
 router.use(auth, student)
@@ -23,7 +25,7 @@ router.post(
         const newClass = await prisma.$transaction(async (tx) => {
             // Create a class
             const newClass = await prisma.class.create({
-                data: { ...classData, crId: student.id },
+                data: { ...classData, crId: student.id, vcrId: student.id },
             })
 
             // Add enrollment
@@ -40,6 +42,50 @@ router.post(
 
         res.status(201)
         res.json(newClass)
+    })
+)
+
+// Cr can add new vcr
+// Removing vcr is equivalent to setting vcr to cr himself
+router.post(
+    '/:id/vcr',
+    cr,
+    asyncWrapper(async (req, res, next) => {
+        const { error, value: vcrData } = vcrSchema.validate(req.body)
+        if (error) throw { message: error.message, status: 400 }
+
+        const vcrId = vcrData.vcrId
+        const student = req.student
+        const classId = Number(req.params.id)
+
+        const _class = await prisma.class.findFirst({
+            where: {
+                crId: student.id,
+                id: classId,
+            },
+        })
+
+        if (!_class) throw { message: 'no such class', status: 404 }
+
+        const vcr = await prisma.enroll.findFirst({
+            where: {
+                studentId: vcrId,
+                classId,
+            },
+        })
+
+        if (!vcr) throw { message: 'no such student in a class', status: 404 }
+
+        const updatedClass = await prisma.class.update({
+            where: {
+                id: classId,
+            },
+            data: {
+                vcrId,
+            },
+        })
+
+        res.json(updatedClass)
     })
 )
 
