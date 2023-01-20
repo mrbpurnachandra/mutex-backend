@@ -9,6 +9,7 @@ const prisma = require('./db')
 const authRouter = require('../routes/auth')
 const teacherRouter = require('../routes/teacher')
 const studentRouter = require('../routes/student')
+const classRouter = require('../routes/class')
 
 app.use(bodyParser.json())
 
@@ -23,6 +24,7 @@ app.get(
 
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
+app.use('/class', classRouter)
 app.use('/teacher', teacherRouter)
 app.use('/student', studentRouter)
 
