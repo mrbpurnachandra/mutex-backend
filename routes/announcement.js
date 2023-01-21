@@ -20,8 +20,8 @@ router.post(
         if (error) throw { message: error.message, status: 400 }
 
         const classId = announcementData.classId
-        if (!isClassValid(req, classId))
-            throw { message: 'unauthorized - test', status: 401 }
+        if (!isValidAnnouncer(req, classId))
+            throw { message: 'unauthorized', status: 401 }
 
         const announcement = await prisma.announcement.create({
             data: {
@@ -35,14 +35,14 @@ router.post(
     })
 )
 
-function isClassValid(req, classId) {
+function isValidAnnouncer(req, classId) {
     if (req.teacher) {
         return req.teacher.lectures.some(
             (lecture) => lecture.classId === classId
         )
     }
     if (req.student) {
-        return req.student.crOf.id === classId || req.student.vcrOf.id === classId
+        return req.student.crOf?.id === classId || req.student.vcrOf?.id === classId
     }
 
     return false

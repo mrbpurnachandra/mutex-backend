@@ -120,13 +120,20 @@ router.delete(
                 id: enrollId,
                 classId: student.crOf.id,
             },
+            include: {
+                class: true,
+            },
         })
 
         if (!enroll) throw { message: 'no such enroll', status: 404 }
 
         // Cannot delete enrollment of CR
-        if (enroll.studentId == student.id)
+        if (enroll.studentId === student.id)
             throw { message: "cannot delete cr's enrollment", status: 400 }
+
+        // Cannot delete VCR's enrollment
+        if (enroll.studentId === enroll.class.vcrId)
+            throw { message: "cannot delete vcr's enrollment", status: 400 }
 
         const deletedEnroll = await prisma.$transaction(async (tx) => {
             // Delete the enroll
