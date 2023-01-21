@@ -147,7 +147,19 @@ router.delete(
                 },
             })
 
-            // TODO - delete message
+            // Delete the associated messages
+            await tx.message.deleteMany({
+                where: {
+                    OR: [
+                        {
+                            senderId: deletedEnroll.student.userId,
+                        },
+                        {
+                            receiverId: deletedEnroll.student.userId,
+                        },
+                    ],
+                },
+            })
 
             return deletedEnroll
         })

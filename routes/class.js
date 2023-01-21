@@ -62,6 +62,7 @@ router.post(
             where: {
                 studentId: vcrId,
                 classId,
+                status: 'approved',
             },
         })
 

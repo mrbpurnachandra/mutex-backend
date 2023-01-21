@@ -2,10 +2,10 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const errorHandler = require('../middlewares/errorHandler')
 const asyncWrapper = require('../lib/asyncWrapper')
-const userRouter = require('../routes/user')
 
 const app = express()
 const prisma = require('./db')
+const userRouter = require('../routes/user')
 const authRouter = require('../routes/auth')
 const teacherRouter = require('../routes/teacher')
 const studentRouter = require('../routes/student')
@@ -13,6 +13,7 @@ const classRouter = require('../routes/class')
 const enrollRouter = require('../routes/enroll')
 const lectureRouter = require('../routes/lecture')
 const announcementRouter = require('../routes/announcement')
+const messageRouter = require('../routes/message')
 
 app.use(bodyParser.json())
 
@@ -33,6 +34,7 @@ app.use('/student', studentRouter)
 app.use('/enroll', enrollRouter)
 app.use('/lecture', lectureRouter)
 app.use('/announcement', announcementRouter)
+app.use('/message', messageRouter)
 
 app.use(errorHandler)
 

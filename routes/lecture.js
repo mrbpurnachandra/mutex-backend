@@ -31,7 +31,6 @@ router.post(
             where: {
                 classId,
                 teacherId: teacher.id,
-                subject: lectureData.subject,
             },
         })
 
@@ -79,6 +78,22 @@ router.delete(
             await tx.announcement.deleteMany({
                 where: {
                     userId: deletedLecture.teacher.userId,
+                    classId,
+                },
+            })
+
+            // Delete associated messages
+            // TODO - test
+            await tx.message.deleteMany({
+                where: {
+                    OR: [
+                        {
+                            senderId: deletedEnroll.student.userId,
+                        },
+                        {
+                            receiverId: deletedEnroll.student.userId,
+                        },
+                    ],
                     classId,
                 },
             })

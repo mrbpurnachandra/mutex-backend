@@ -11,14 +11,16 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  name          String
-  email         String         @unique
-  username      String         @unique
-  password      String
-  teacher       Teacher?
-  student       Student?
-  announcements Announcement[]
+  id               Int            @id @default(autoincrement())
+  name             String
+  email            String         @unique
+  username         String         @unique
+  password         String
+  teacher          Teacher?
+  student          Student?
+  announcements    Announcement[]
+  sentMessages     Message[]      @relation(name: "sender")
+  receivedMessages Message[]      @relation(name: "receiver")
 }
 
 model Teacher {
@@ -49,6 +51,7 @@ model Class {
   enrolls       Enroll[]
   lectures      Lecture[]
   announcements Announcement[]
+  messages      Message[]
 }
 
 model Enroll {
@@ -78,4 +81,16 @@ model Announcement {
   classId   Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+  senderId   Int
+  receiverId Int?
+  classId    Int
+  sender     User     @relation(name: "sender", fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  receiver   User?     @relation(name: "receiver", fields: [receiverId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  class      Class    @relation(fields: [classId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
