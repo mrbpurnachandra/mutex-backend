@@ -18,7 +18,11 @@ router.post(
             },
             include: {
                 teacher: true,
-                student: true,
+                student: {
+                    include: {
+                        enroll: true,
+                    },
+                },
             },
         })
 
@@ -34,9 +38,13 @@ router.post(
 )
 
 // Refresh Token
-router.get('/token', auth, asyncWrapper(async (req, res, next) => {
-    const token = await generateToken(req.user)
-    res.json(token)
-}))
+router.get(
+    '/token',
+    auth,
+    asyncWrapper(async (req, res, next) => {
+        const token = await generateToken(req.user)
+        res.json(token)
+    })
+)
 
 module.exports = router
