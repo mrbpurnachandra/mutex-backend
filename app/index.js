@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const cors = require('cors')
 const errorHandler = require('../middlewares/errorHandler')
 const asyncWrapper = require('../lib/asyncWrapper')
 
@@ -16,6 +17,7 @@ const announcementRouter = require('../routes/announcement')
 const messageRouter = require('../routes/message')
 
 app.use(bodyParser.json())
+app.use(cors()) 
 
 // TODO - Testing Route
 app.get(

@@ -14,7 +14,11 @@ passport.use(
                 },
                 include: {
                     teacher: true,
-                    student: true,
+                    student: {
+                        include: {
+                            enroll: true,
+                        },
+                    },
                 },
             })
 
