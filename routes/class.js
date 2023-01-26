@@ -10,6 +10,23 @@ const router = express.Router()
 
 router.use(auth, student)
 
+router.get('/', asyncWrapper(async (req, res, next) => {
+    const classes = await prisma.class.findMany({
+        include: {
+            cr: {
+                include: {
+                    user: {
+                        select: {
+                            username: true
+                        }
+                    }
+                }
+            }
+        }
+    })
+    res.json(classes)
+}))
+
 router.post(
     '/',
     asyncWrapper(async (req, res, next) => {
