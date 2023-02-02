@@ -20,7 +20,11 @@ router.post(
                 teacher: true,
                 student: {
                     include: {
-                        enroll: true,
+                        enroll: {
+                            include: {
+                                class: true,
+                            },
+                        },
                     },
                 },
             },
