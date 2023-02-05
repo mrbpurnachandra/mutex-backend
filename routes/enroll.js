@@ -10,6 +10,31 @@ const router = express.Router()
 
 router.use(auth, student)
 
+// TODO - Testing
+router.get(
+    '/', 
+    cr, 
+    asyncWrapper(async (req, res, next) => {
+        const student = req.student
+        const classId = student.crOf.id
+
+        const enrolls = await prisma.enroll.findMany({
+            where: {
+                classId
+            }, 
+            include: {
+                student: {
+                    include: {
+                        user: true
+                    }
+                }
+            }
+        })
+
+        res.json(enrolls)
+    })
+)
+
 // Any student not enrolled in other class can make enrollment which will be pending by default
 router.post(
     '/',

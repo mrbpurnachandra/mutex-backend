@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const qs = require('qs')
 const errorHandler = require('../middlewares/errorHandler')
 const asyncWrapper = require('../lib/asyncWrapper')
 
@@ -16,6 +17,7 @@ const lectureRouter = require('../routes/lecture')
 const announcementRouter = require('../routes/announcement')
 const messageRouter = require('../routes/message')
 
+app.set('query parser', str => qs.parse(str))
 app.use(bodyParser.json())
 app.use(cors()) 
 

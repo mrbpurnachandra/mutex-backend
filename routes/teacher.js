@@ -5,6 +5,28 @@ const prisma = require('../app/db')
 const auth = require('../middlewares/auth')
 const router = express.Router()
 
+router.get(
+    '/',
+    auth, 
+    asyncWrapper(async (req, res, next) => {
+        const searchString = req.query.search
+        const teachers = await prisma.teacher.findMany({
+            where: {
+                user: {
+                    name: {
+                        contains: searchString
+                    }
+                }
+            }, 
+            include: {
+                user: true
+            }
+        })
+
+        res.json(teachers)
+    })
+)
+
 router.post(
     '/',
     auth,
