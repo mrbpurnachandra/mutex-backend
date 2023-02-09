@@ -25,7 +25,9 @@ router.get(
             include: {
                 student: {
                     include: {
-                        user: true
+                        user: true, 
+                        crOf: true, 
+                        vcrOf: true, 
                     }
                 }
             }

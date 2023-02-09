@@ -51,6 +51,7 @@ router.get(
                 },
             })
         }
+        
         return res.json(lectures)
     })
 )
