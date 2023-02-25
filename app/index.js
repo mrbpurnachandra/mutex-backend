@@ -1,12 +1,13 @@
+const http = require('http')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const qs = require('qs')
 const errorHandler = require('../middlewares/errorHandler')
-const asyncWrapper = require('../lib/asyncWrapper')
 
 const app = express()
-const prisma = require('./db')
+const server = http.createServer(app)
+
 const userRouter = require('../routes/user')
 const authRouter = require('../routes/auth')
 const teacherRouter = require('../routes/teacher')
@@ -17,18 +18,13 @@ const lectureRouter = require('../routes/lecture')
 const announcementRouter = require('../routes/announcement')
 const messageRouter = require('../routes/message')
 
-app.set('query parser', str => qs.parse(str))
+app.set('query parser', (str) => qs.parse(str))
 app.use(bodyParser.json())
-app.use(cors()) 
+app.use(cors())
 
-// TODO - Testing Route
-app.get(
-    '/',
-    asyncWrapper(async (req, res, next) => {
-        const userCount1 = await prisma.user.count()
-        res.json({ userCount: userCount1 })
-    })
-)
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html')
+})
 
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
@@ -42,4 +38,4 @@ app.use('/message', messageRouter)
 
 app.use(errorHandler)
 
-module.exports = app
+module.exports = server

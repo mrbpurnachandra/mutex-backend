@@ -9,3 +9,4 @@ process.on('unhandledRejection', handle)
 require('dotenv').config()
 
 require('./app').listen(3000, () => console.log('running...'))
+require('./socket')
