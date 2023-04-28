@@ -2,7 +2,11 @@ const server = require('../app')
 const { Server } = require('socket.io')
 const { verifyToken } = require('../lib/crypto')
 const prisma = require('../app/db')
-const { handleSendOldMessages, handleNewNormalMessage } = require('./handlers')
+const {
+    handleSendOldMessages,
+    handleNewNormalMessage,
+    handleNewSpecialMessage,
+} = require('./handlers')
 
 const io = new Server(server, {
     cors: {
@@ -61,6 +65,10 @@ io.on('connection', async (socket) => {
             // Register event handlers
             socket.on('send_old_messages', handleSendOldMessages(io, socket))
             socket.on('new_normal_message', handleNewNormalMessage(io, socket))
+            socket.on(
+                'new_special_message',
+                handleNewSpecialMessage(io, socket)
+            )
         } else {
             const classes = await prisma.lecture.findMany({
                 where: {
@@ -70,8 +78,17 @@ io.on('connection', async (socket) => {
                     classId: true,
                 },
             })
+            // Join Descision
+            classes.forEach(c => {
+                socket.join([`teacher/${c.classId}`])
+            })
 
-            classes.forEach((_class) => socket.join(`private/${_class}`))
+            // Register event handlers
+            socket.on('send_old_messages', handleSendOldMessages(io, socket))
+            socket.on(
+                'new_special_message',
+                handleNewSpecialMessage(io, socket)
+            )
         }
     } catch (e) {
         console.log(e)

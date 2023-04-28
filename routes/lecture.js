@@ -9,7 +9,6 @@ const router = express.Router()
 
 router.use(auth)
 
-//TODO -  Remaining to check
 router.get(
     '/',
     asyncWrapper(async (req, res, next) => {
@@ -22,7 +21,11 @@ router.get(
                     teacherId: user.teacher.id,
                 },
                 include: {
-                    class: true,
+                    class: {
+                        include: {
+                            cr: true
+                        }
+                    },
                     teacher: {
                         include: {
                             user: true,
@@ -42,7 +45,11 @@ router.get(
                     classId: user.student.enroll.classId,
                 },
                 include: {
-                    class: true,
+                    class: {
+                        include: {
+                            cr: true
+                        }
+                    },
                     teacher: {
                         include: {
                             user: true,
