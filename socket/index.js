@@ -6,7 +6,11 @@ const {
     handleSendOldMessages,
     handleNewNormalMessage,
     handleNewSpecialMessage,
-} = require('./handlers')
+} = require('./messageHandlers')
+const {
+    handleSendOldAnnouncements,
+    handleNewAnnouncement,
+} = require('./announcementHandler')
 
 const io = new Server(server, {
     cors: {
@@ -58,37 +62,34 @@ io.on('connection', async (socket) => {
         const user = socket.user
         if (user.student) {
             const classId = user.student.enroll.classId
-
-            // Join the corresponding rooms
-            socket.join([`private/${classId}`, `public/${classId}`])
+            socket.join([`private/${classId}`])
 
             // Register event handlers
             socket.on('send_old_messages', handleSendOldMessages(io, socket))
+            socket.on(
+                'send_old_announcements',
+                handleSendOldAnnouncements(io, socket)
+            )
             socket.on('new_normal_message', handleNewNormalMessage(io, socket))
             socket.on(
                 'new_special_message',
                 handleNewSpecialMessage(io, socket)
             )
+            socket.on('new_announcement', handleNewAnnouncement(io, socket))
         } else {
-            const classes = await prisma.lecture.findMany({
-                where: {
-                    teacherId: user.teacher.id,
-                },
-                select: {
-                    classId: true,
-                },
-            })
-            // Join Descision
-            classes.forEach(c => {
-                socket.join([`teacher/${c.classId}`])
-            })
+            socket.join([`teacher/${user.id}`])
 
             // Register event handlers
             socket.on('send_old_messages', handleSendOldMessages(io, socket))
             socket.on(
+                'send_old_announcements',
+                handleSendOldAnnouncements(io, socket)
+            )
+            socket.on(
                 'new_special_message',
                 handleNewSpecialMessage(io, socket)
             )
+            socket.on('new_announcement', handleNewAnnouncement(io, socket))
         }
     } catch (e) {
         console.log(e)

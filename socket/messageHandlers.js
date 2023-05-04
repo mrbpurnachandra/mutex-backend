@@ -160,8 +160,13 @@ function handleNewSpecialMessage(io, socket) {
                 },
             })
 
-            io.in(`public/${classId}`).emit('new_message', message)
-            io.in(`teacher/${classId}`).emit('new_message', message)
+            io.in(`private/${classId}`).emit('new_message', message)
+            if(socket.user.student) {
+                console.log(`teacher/${receiverId}`)
+                io.in(`teacher/${receiverId}`).emit('new_message', message)
+            } else {
+                io.in(`teacher/${senderId}`).emit('new_message', message)
+            }
         } catch (e) {
             socket.emit('error', e)
         }
@@ -188,7 +193,6 @@ async function canSendSpecialMessage(user) {
                 },
             },
         })
-        console.log('Test - student', student)
         user.student = student
         if (!student.crOf && !student.vcrOf) throw { message: 'unauthorized' }
     }
