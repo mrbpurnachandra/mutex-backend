@@ -123,6 +123,59 @@ router.post(
     })
 )
 
+router.get(
+    '/:classId/:receiverId/:lastMessageId',
+    asyncWrapper(async (req, res, next) => {
+        const classId = Number(req.params.classId)
+        const receiverId = Number(req.params.receiverId)
+        const lastMessageId = Number(req.params.lastMessageId)
+
+        let messages = []
+
+        const filter = {
+            classId: classId,
+            id: {
+                lt: lastMessageId,
+            },
+        }
+
+        if (req.user.student) {
+            if (isNaN(receiverId)) {
+                filter.receiverId = null
+            } else {
+                filter.OR = [
+                    { senderId: receiverId },
+                    { receiverId: receiverId },
+                ]
+            }
+        }
+
+        if (req.user.teacher) {
+            filter.OR = [{ senderId: req.user.id }, { receiverId: req.user.id }]
+        }
+
+        messages = await prisma.message.findMany({
+            where: filter,
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+            orderBy: {
+                id: 'desc',
+            },
+            take: 10,
+        })
+
+        res.status(200)
+        res.send(messages)
+    })
+)
+
 function isValidSender(req, classId) {
     if (req.teacher) {
         return req.teacher.lectures.some(

@@ -162,7 +162,6 @@ function handleNewSpecialMessage(io, socket) {
 
             io.in(`private/${classId}`).emit('new_message', message)
             if(socket.user.student) {
-                console.log(`teacher/${receiverId}`)
                 io.in(`teacher/${receiverId}`).emit('new_message', message)
             } else {
                 io.in(`teacher/${senderId}`).emit('new_message', message)
