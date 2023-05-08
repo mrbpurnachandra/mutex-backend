@@ -14,7 +14,8 @@ const {
 
 const io = new Server(server, {
     cors: {
-        origin: ['http://localhost:5173', 'https://mutex-frontend.onrender.com/'],
+        origin: ['http://localhost:5173', 'https://mutex-frontend.onrender.com/'], 
+        methods: ['POST', 'GET']
     },
 })
 
