@@ -22,10 +22,6 @@ app.set('query parser', (str) => qs.parse(str))
 app.use(bodyParser.json())
 app.use(cors())
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html')
-})
-
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
 app.use('/class', classRouter)
