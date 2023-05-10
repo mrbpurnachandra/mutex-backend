@@ -9,6 +9,7 @@ const {
     specialMessageSchema,
 } = require('../schemas/message')
 const enrolled = require('../middlewares/enrolled')
+const io = require('../socket/socketServer')
 const router = express.Router()
 
 router.use(auth)
@@ -60,6 +61,14 @@ router.delete(
             },
         })
 
+        // Emit events
+        io.in([
+            `private/${deletedMessage.classId}`,
+            `teacher/${deletedMessage.senderId}`,
+            `teacher/${deletedMessage.receiverId}`,
+        ]).emit('message_deleted', deletedMessage.id)
+
+        // Send response
         res.json(deletedMessage)
     })
 )
