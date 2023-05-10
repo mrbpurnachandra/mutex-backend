@@ -1,5 +1,5 @@
 function handle(err) {
-    console.log(err) // This error should be logged somewhere
+    console.log(err)
     process.exit(1)
 }
 
@@ -8,5 +8,10 @@ process.on('uncaughtException', handle)
 process.on('unhandledRejection', handle)
 require('dotenv').config()
 
-require('./app').listen(3000, () => console.log('running...'))
-require('./socket')
+const server = require('./app/httpServer')
+const appServer = require('./app/appServer')
+
+server.on('request', appServer)
+require('./socket/socketServer')
+
+server.listen(3000, () => console.log('running'))

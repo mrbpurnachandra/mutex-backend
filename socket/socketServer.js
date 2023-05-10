@@ -1,4 +1,4 @@
-const server = require('../app')
+const server = require('../app/httpServer')
 const { Server } = require('socket.io')
 const { verifyToken } = require('../lib/crypto')
 const prisma = require('../app/db')
@@ -14,8 +14,11 @@ const {
 
 const io = new Server(server, {
     cors: {
-        origin: ['http://localhost:5173', 'https://mutex-frontend.onrender.com/'], 
-        methods: ['POST', 'GET']
+        origin: [
+            'http://localhost:5173',
+            'https://mutex-frontend.onrender.com/',
+        ],
+        methods: ['POST', 'GET'],
     },
 })
 
@@ -96,3 +99,5 @@ io.on('connection', async (socket) => {
         console.log(e)
     }
 })
+
+module.exports = io

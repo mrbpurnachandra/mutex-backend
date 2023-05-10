@@ -1,4 +1,3 @@
-const http = require('http')
 const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
@@ -6,7 +5,6 @@ const qs = require('qs')
 const errorHandler = require('../middlewares/errorHandler')
 
 const app = express()
-const server = http.createServer(app)
 
 const userRouter = require('../routes/user')
 const authRouter = require('../routes/auth')
@@ -17,6 +15,7 @@ const enrollRouter = require('../routes/enroll')
 const lectureRouter = require('../routes/lecture')
 const announcementRouter = require('../routes/announcement')
 const messageRouter = require('../routes/message')
+const io = require('../socket/socketServer')
 
 app.set('query parser', (str) => qs.parse(str))
 app.use(bodyParser.json())
@@ -34,4 +33,4 @@ app.use('/message', messageRouter)
 
 app.use(errorHandler)
 
-module.exports = server
+module.exports = app
