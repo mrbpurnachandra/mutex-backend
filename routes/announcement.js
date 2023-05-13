@@ -35,6 +35,66 @@ router.post(
     })
 )
 
+router.get(
+    '/old/:lastAnnouncementId',
+    asyncWrapper(async (req, res, next) => {
+        const user = req.user
+        const lastAnnouncementId = Number(req.params.lastAnnouncementId)
+
+        if (isNaN(lastAnnouncementId))
+            throw { message: 'Bad Request', status: 400 }
+
+        let announcements = []
+        if (user.student) {
+            announcements = await prisma.announcement.findMany({
+                where: {
+                    classId: user.student.enroll.classId,
+                    id: {
+                        lt: lastAnnouncementId,
+                    },
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    id: 'desc',
+                },
+                take: 10,
+            })
+        } else {
+            announcements = await prisma.announcement.findMany({
+                where: {
+                    userId: user.id,
+                    id: {
+                        lt: lastAnnouncementId,
+                    },
+                },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                        },
+                    },
+                },
+                orderBy: {
+                    id: 'desc',
+                },
+                take: 10,
+            })
+        }
+
+        res.json(announcements)
+    })
+)
+
 function isValidAnnouncer(req, classId) {
     if (req.teacher) {
         return req.teacher.lectures.some(
@@ -42,7 +102,10 @@ function isValidAnnouncer(req, classId) {
         )
     }
     if (req.student) {
-        return req.student.crOf?.id === classId || req.student.vcrOf?.id === classId
+        return (
+            req.student.crOf?.id === classId ||
+            req.student.vcrOf?.id === classId
+        )
     }
 
     return false
