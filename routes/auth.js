@@ -1,9 +1,17 @@
 const express = require('express')
 const prisma = require('../app/db')
 const asyncWrapper = require('../lib/asyncWrapper')
-const { match, generateToken } = require('../lib/crypto')
+const {
+    match,
+    generateToken,
+    verifyToken,
+    hash,
+    generateTokenWithTime,
+} = require('../lib/crypto')
 const authSchema = require('../schemas/auth')
 const auth = require('../middlewares/auth')
+const schema = require('../schemas/changePassword')
+const { sendEmail } = require('../config/emailService')
 const router = express.Router()
 
 router.post(
@@ -38,6 +46,58 @@ router.post(
 
         const token = await generateToken(user)
         res.json(token)
+    })
+)
+
+router.post(
+    '/forgot-password',
+    asyncWrapper(async (req, res, next) => {
+        let { username } = req.body
+
+        if (!username || !username.trim())
+            throw { message: 'please provide username', status: 400 }
+
+        const user = await prisma.user.findFirst({
+            where: {
+                username,
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+            },
+        })
+
+        if (!user) throw { message: "user doesn't exist", status: 400 }
+
+        const token = await generateTokenWithTime({ id: user.id }, '5m')
+    
+        await sendEmail('Password Reset Token', `Token: ${token}`, [user.email])
+
+        res.json({ message: 'Email sent' })
+    })
+)
+
+router.post(
+    '/change-password',
+    asyncWrapper(async (req, res, next) => {
+        const { error, value } = schema.validate(req.body)
+        if (error) throw { message: error.message, status: 400 }
+
+        const { password, token } = value
+        const payload = await verifyToken(token)
+        const hashedPassword = await hash(password)
+
+        await prisma.user.update({
+            where: {
+                id: payload.id,
+            },
+            data: {
+                password: hashedPassword,
+            },
+        })
+
+        res.json({ message: 'Password updated' })
     })
 )
 
