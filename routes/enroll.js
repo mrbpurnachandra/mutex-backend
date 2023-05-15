@@ -5,32 +5,32 @@ const cr = require('../middlewares/cr')
 const asyncWrapper = require('../lib/asyncWrapper')
 const enrollSchema = require('../schemas/enroll')
 const prisma = require('../app/db')
+const io = require('../socket/socketServer')
 
 const router = express.Router()
 
 router.use(auth, student)
 
-// TODO - Testing
 router.get(
-    '/', 
-    cr, 
+    '/',
+    cr,
     asyncWrapper(async (req, res, next) => {
         const student = req.student
         const classId = student.crOf.id
 
         const enrolls = await prisma.enroll.findMany({
             where: {
-                classId
-            }, 
+                classId,
+            },
             include: {
                 student: {
                     include: {
-                        user: true, 
-                        crOf: true, 
-                        vcrOf: true, 
-                    }
-                }
-            }
+                        user: true,
+                        crOf: true,
+                        vcrOf: true,
+                    },
+                },
+            },
         })
 
         res.json(enrolls)
@@ -197,6 +197,12 @@ router.delete(
 
             return deletedEnroll
         })
+
+        // Send student removed information to the class
+        io.in([`private/${deletedEnroll.classId}`]).emit(
+            'student_removed',
+            deletedEnroll.student.userId
+        )
 
         res.json(deletedEnroll)
     })
