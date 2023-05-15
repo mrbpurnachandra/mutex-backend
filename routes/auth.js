@@ -72,7 +72,7 @@ router.post(
 
         const token = await generateTokenWithTime({ id: user.id }, '5m')
     
-        await sendEmail('Password Reset Token', `Token: ${token}`, [user.email])
+        await sendEmail('Password Reset Token', `Token: ${token}`, user.email)
 
         res.json({ message: 'Email sent' })
     })
