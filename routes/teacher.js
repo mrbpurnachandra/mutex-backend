@@ -7,23 +7,48 @@ const router = express.Router()
 
 router.get(
     '/',
-    auth, 
+    auth,
     asyncWrapper(async (req, res, next) => {
         const searchString = req.query.search
         const teachers = await prisma.teacher.findMany({
             where: {
                 user: {
                     name: {
-                        contains: searchString
-                    }
-                }
-            }, 
+                        contains: searchString,
+                    },
+                },
+            },
             include: {
-                user: true
-            }
+                user: true,
+            },
         })
 
         res.json(teachers)
+    })
+)
+
+router.get(
+    '/user/:id',
+    auth,
+    asyncWrapper(async (req, res, next) => {
+        const teacherUserId = Number(req.params.id)
+
+        if (isNaN(teacherUserId)) throw { message: 'Bad Request', status: 400 }
+
+        // Here we use redis
+
+        const teacher = await prisma.teacher.findFirst({
+            where: {
+                userId: teacherUserId,
+            },
+            include: {
+                user: true,
+            },
+        })
+
+        if (!teacher) throw { message: 'teacher not found', status: 404 }
+
+        res.json(teacher)
     })
 )
 

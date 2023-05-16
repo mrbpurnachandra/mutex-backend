@@ -8,27 +8,66 @@ const classSchema = require('../schemas/class')
 const vcrSchema = require('../schemas/vcr')
 const router = express.Router()
 
-router.use(auth, student)
+router.use(auth)
 
-router.get('/', asyncWrapper(async (req, res, next) => {
-    const classes = await prisma.class.findMany({
-        include: {
-            cr: {
-                include: {
-                    user: {
-                        select: {
-                            username: true
-                        }
-                    }
-                }
-            }
-        }
+router.get(
+    '/',
+    asyncWrapper(async (req, res, next) => {
+        const classes = await prisma.class.findMany({
+            include: {
+                cr: {
+                    include: {
+                        user: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+            },
+        })
+        res.json(classes)
     })
-    res.json(classes)
-}))
+)
+
+router.get(
+    '/:id',
+    asyncWrapper(async (req, res, next) => {
+        const classId = Number(req.params.id)
+        if (isNaN(classId)) throw { message: 'Bad Request', status: 400 }
+
+        try {
+            
+        } catch (e) {
+            
+        }
+
+        const _class = await prisma.class.findFirst({
+            where: {
+                id: classId,
+            },
+            include: {
+                cr: {
+                    include: {
+                        user: {
+                            select: {
+                                username: true,
+                            },
+                        },
+                    },
+                },
+            },
+        })
+
+        if (!_class) throw { message: 'class not found', status: 404 }
+
+        res.json(_class)
+    })
+)
 
 router.post(
     '/',
+    student,
     asyncWrapper(async (req, res, next) => {
         const user = req.user
         const student = req.student
@@ -54,6 +93,7 @@ router.post(
                     classId: newClass.id,
                 },
             })
+
             return newClass
         })
 
@@ -66,6 +106,7 @@ router.post(
 // Removing vcr is equivalent to setting vcr to cr himself
 router.post(
     '/vcr',
+    student,
     cr,
     asyncWrapper(async (req, res, next) => {
         const { error, value: vcrData } = vcrSchema.validate(req.body)
