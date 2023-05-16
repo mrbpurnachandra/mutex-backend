@@ -6,6 +6,7 @@ const cr = require('../middlewares/cr')
 const student = require('../middlewares/student')
 const classSchema = require('../schemas/class')
 const vcrSchema = require('../schemas/vcr')
+const redisClient = require('../config/redis')
 const router = express.Router()
 
 router.use(auth)
@@ -37,9 +38,13 @@ router.get(
         if (isNaN(classId)) throw { message: 'Bad Request', status: 400 }
 
         try {
-            
+            const cachedClass = await redisClient.get(`class/${classId}`)
+            if (cachedClass) {
+                console.log('Served from cache!')
+                return res.json(JSON.parse(cachedClass))
+            }
         } catch (e) {
-            
+            console.log(e)
         }
 
         const _class = await prisma.class.findFirst({
@@ -60,6 +65,14 @@ router.get(
         })
 
         if (!_class) throw { message: 'class not found', status: 404 }
+
+        try {
+            await redisClient.set(`class/${classId}`, JSON.stringify(_class), {
+                EX: process.env.CACHE_EXPIRY,
+            })
+        } catch (e) {
+            console.log(e)
+        }
 
         res.json(_class)
     })

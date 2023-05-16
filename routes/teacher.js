@@ -3,6 +3,7 @@ const asyncWrapper = require('../lib/asyncWrapper')
 const teacherSchema = require('../schemas/teacher')
 const prisma = require('../app/db')
 const auth = require('../middlewares/auth')
+const redisClient = require('../config/redis')
 const router = express.Router()
 
 router.get(
@@ -36,6 +37,16 @@ router.get(
         if (isNaN(teacherUserId)) throw { message: 'Bad Request', status: 400 }
 
         // Here we use redis
+        try {
+            const cachedTeacher = await redisClient.get(
+                `teacher/${teacherUserId}`
+            )
+            if (cachedTeacher) {
+                return res.json(JSON.parse(cachedTeacher))
+            }
+        } catch (e) {
+            console.log(e)
+        }
 
         const teacher = await prisma.teacher.findFirst({
             where: {
@@ -47,6 +58,18 @@ router.get(
         })
 
         if (!teacher) throw { message: 'teacher not found', status: 404 }
+
+        try {
+            await redisClient.set(
+                `teacher/${teacherUserId}`,
+                JSON.stringify(teacher),
+                {
+                    EX: process.env.CACHE_EXPIRY,
+                }
+            )
+        } catch (e) {
+            console.log(e)
+        }
 
         res.json(teacher)
     })

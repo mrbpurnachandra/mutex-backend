@@ -13,5 +13,6 @@ const appServer = require('./app/appServer')
 
 server.on('request', appServer)
 require('./socket/socketServer')
+require('./app/redisService')()
 
 server.listen(3000, () => console.log('running'))
