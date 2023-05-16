@@ -11,6 +11,7 @@ const {
     handleSendOldAnnouncements,
     handleNewAnnouncement,
 } = require('./announcementHandler')
+const { handleSendOnlineStudents } = require('./onlineHandler')
 
 const io = new Server(server, {
     cors: {
@@ -80,6 +81,10 @@ io.on('connection', async (socket) => {
                 handleNewSpecialMessage(io, socket)
             )
             socket.on('new_announcement', handleNewAnnouncement(io, socket))
+            socket.on(
+                'send_online_students',
+                handleSendOnlineStudents(io, socket)
+            )
         } else {
             socket.join([`teacher/${user.id}`])
 
