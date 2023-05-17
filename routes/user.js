@@ -2,13 +2,14 @@ const express = require('express')
 const asyncWrapper = require('../lib/asyncWrapper')
 const prisma = require('../app/db')
 const userSchema = require('../schemas/user')
-const { hash } = require('../lib/crypto')
+const { hash, generateTokenWithTime } = require('../lib/crypto')
 const auth = require('../middlewares/auth')
+const { sendEmail } = require('../config/emailService')
 const router = express.Router()
 
 router.get(
     '/',
-    auth, 
+    auth,
     asyncWrapper(async (req, res, next) => {
         const users = await prisma.user.findMany({
             include: {
@@ -49,6 +50,10 @@ router.post(
         const newUser = await prisma.user.create({
             data: { ...userData, password },
         })
+
+        // Send email
+        const token = await generateTokenWithTime({ id: newUser.id }, '5m')
+        await sendEmail('Verification Token', `Token: ${token}`, newUser.email)
 
         res.status(201)
         res.json(newUser)

@@ -4,11 +4,13 @@ const teacherSchema = require('../schemas/teacher')
 const prisma = require('../app/db')
 const auth = require('../middlewares/auth')
 const redisClient = require('../config/redis')
+const verified = require('../middlewares/verified')
 const router = express.Router()
 
 router.get(
     '/',
     auth,
+    verified, 
     asyncWrapper(async (req, res, next) => {
         const searchString = req.query.search
         const teachers = await prisma.teacher.findMany({
@@ -31,6 +33,7 @@ router.get(
 router.get(
     '/user/:id',
     auth,
+    verified, 
     asyncWrapper(async (req, res, next) => {
         const teacherUserId = Number(req.params.id)
 
@@ -78,6 +81,7 @@ router.get(
 router.post(
     '/',
     auth,
+    verified, 
     asyncWrapper(async (req, res, next) => {
         const user = req.user
 

@@ -48,6 +48,7 @@ io.use(async (socket, next) => {
 
         if (
             !user ||
+            !user.verifiedOn ||
             (user.student &&
                 (!user.student.enroll ||
                     user.student.enroll.status === 'pending'))

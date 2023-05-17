@@ -4,9 +4,10 @@ const asyncWrapper = require('../lib/asyncWrapper')
 const announcer = require('../middlewares/announcer')
 const auth = require('../middlewares/auth')
 const announcementSchema = require('../schemas/announcement')
+const verified = require('../middlewares/verified')
 const router = express.Router()
 
-router.use(auth)
+router.use(auth, verified)
 
 router.post(
     '/',

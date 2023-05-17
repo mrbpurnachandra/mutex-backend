@@ -6,10 +6,11 @@ const asyncWrapper = require('../lib/asyncWrapper')
 const enrollSchema = require('../schemas/enroll')
 const prisma = require('../app/db')
 const io = require('../socket/socketServer')
+const verified = require('../middlewares/verified')
 
 const router = express.Router()
 
-router.use(auth, student)
+router.use(auth, verified, student)
 
 router.get(
     '/',

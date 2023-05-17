@@ -5,9 +5,10 @@ const student = require('../middlewares/student')
 const cr = require('../middlewares/cr')
 const asyncWrapper = require('../lib/asyncWrapper')
 const lectureSchema = require('../schemas/lecture')
+const verified = require('../middlewares/verified')
 const router = express.Router()
 
-router.use(auth)
+router.use(auth, verified)
 
 router.get(
     '/',

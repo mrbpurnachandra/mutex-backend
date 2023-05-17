@@ -10,7 +10,7 @@ const {
 } = require('../lib/crypto')
 const authSchema = require('../schemas/auth')
 const auth = require('../middlewares/auth')
-const schema = require('../schemas/changePassword')
+const changePasswordSchema = require('../schemas/changePassword')
 const { sendEmail } = require('../config/emailService')
 const router = express.Router()
 
@@ -71,7 +71,7 @@ router.post(
         if (!user) throw { message: "user doesn't exist", status: 400 }
 
         const token = await generateTokenWithTime({ id: user.id }, '5m')
-    
+
         await sendEmail('Password Reset Token', `Token: ${token}`, user.email)
 
         res.json({ message: 'Email sent' })
@@ -81,7 +81,7 @@ router.post(
 router.post(
     '/change-password',
     asyncWrapper(async (req, res, next) => {
-        const { error, value } = schema.validate(req.body)
+        const { error, value } = changePasswordSchema.validate(req.body)
         if (error) throw { message: error.message, status: 400 }
 
         const { password, token } = value
@@ -98,6 +98,41 @@ router.post(
         })
 
         res.json({ message: 'Password updated' })
+    })
+)
+
+router.post(
+    '/resend-token',
+    auth,
+    asyncWrapper(async (req, res, next) => {
+        const user = req.user
+
+        const token = await generateTokenWithTime({ id: user.id }, '5m')
+
+        await sendEmail('Verification Token', `Token: ${token}`, user.email)
+
+        res.json({ message: 'Token sent' })
+    })
+)
+
+router.post(
+    '/verify',
+    asyncWrapper(async (req, res, next) => {
+        const { token } = req.body
+        if (!token) throw { message: 'token is required', status: 400 }
+
+        const payload = await verifyToken(token)
+
+        await prisma.user.update({
+            where: {
+                id: payload.id,
+            },
+            data: {
+                verifiedOn: new Date(),
+            },
+        })
+
+        res.json({ message: 'User verified' })
     })
 )
 

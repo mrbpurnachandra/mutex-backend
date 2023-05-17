@@ -3,11 +3,13 @@ const asyncWrapper = require('../lib/asyncWrapper')
 const studentSchema = require('../schemas/student')
 const prisma = require('../app/db')
 const auth = require('../middlewares/auth')
+const verified = require('../middlewares/verified')
 const router = express.Router()
 
 router.post(
     '/',
     auth,
+    verified, 
     asyncWrapper(async (req, res, next) => {
         const user = req.user
 

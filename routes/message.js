@@ -10,9 +10,10 @@ const {
 } = require('../schemas/message')
 const enrolled = require('../middlewares/enrolled')
 const io = require('../socket/socketServer')
+const verified = require('../middlewares/verified')
 const router = express.Router()
 
-router.use(auth)
+router.use(auth, verified)
 
 router.post(
     '/normal',

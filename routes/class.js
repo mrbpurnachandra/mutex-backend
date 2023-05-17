@@ -7,9 +7,10 @@ const student = require('../middlewares/student')
 const classSchema = require('../schemas/class')
 const vcrSchema = require('../schemas/vcr')
 const redisClient = require('../config/redis')
+const verified = require('../middlewares/verified')
 const router = express.Router()
 
-router.use(auth)
+router.use(auth, verified)
 
 router.get(
     '/',
