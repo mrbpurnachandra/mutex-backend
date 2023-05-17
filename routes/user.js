@@ -6,7 +6,6 @@ const { hash } = require('../lib/crypto')
 const auth = require('../middlewares/auth')
 const router = express.Router()
 
-// TODO
 router.get(
     '/',
     auth, 

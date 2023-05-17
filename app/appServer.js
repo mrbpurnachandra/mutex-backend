@@ -15,7 +15,6 @@ const enrollRouter = require('../routes/enroll')
 const lectureRouter = require('../routes/lecture')
 const announcementRouter = require('../routes/announcement')
 const messageRouter = require('../routes/message')
-const io = require('../socket/socketServer')
 
 app.set('query parser', (str) => qs.parse(str))
 app.use(bodyParser.json())
