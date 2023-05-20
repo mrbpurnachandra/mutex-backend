@@ -23,6 +23,12 @@ function handleSendOldAnnouncements(io, socket) {
                                 email: true,
                             },
                         },
+                        class: {
+                            select: {
+                                name: true,
+                                description: true,
+                            },
+                        },
                     },
                     orderBy: {
                         id: 'desc',
@@ -30,7 +36,6 @@ function handleSendOldAnnouncements(io, socket) {
                     take: lastAnnouncementId ? Infinity : 10,
                 })
             } else {
-                // TO TEST
                 announcements = await prisma.announcement.findMany({
                     where: {
                         userId: user.id,
@@ -44,6 +49,12 @@ function handleSendOldAnnouncements(io, socket) {
                                 id: true,
                                 name: true,
                                 email: true,
+                            },
+                        },
+                        class: {
+                            select: {
+                                name: true,
+                                description: true,
                             },
                         },
                     },
@@ -86,6 +97,12 @@ function handleNewAnnouncement(io, socket) {
                             id: true,
                             name: true,
                             email: true,
+                        },
+                    },
+                    class: {
+                        select: {
+                            name: true,
+                            description: true,
                         },
                     },
                 },
@@ -161,5 +178,5 @@ function isValidAnnouncer(user, classId) {
 
 module.exports = {
     handleSendOldAnnouncements,
-    handleNewAnnouncement
+    handleNewAnnouncement,
 }
